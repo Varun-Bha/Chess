@@ -1,11 +1,11 @@
 import { WebSocket } from 'ws'; 
 
 export class Game {
-    private player1: WebSocket;
-    private player2: WebSocket;
+    public player1: WebSocket;
+    public player2: WebSocket;
     private board: string; 
     private moves: string[];
-    private startTime: Date;
+    private startTime: Date; 
 
 
     constructor(player1: WebSocket, player2: WebSocket) {
@@ -15,5 +15,15 @@ export class Game {
         this.moves = [];
         this.startTime = new Date();
         
+    }
+
+    makeMove(socket: WebSocket, move: string) {
+        if (socket === this.player1 || socket === this.player2) {
+            this.moves.push(move);
+            // Here you would update the board state based on the move
+            // For example, if it's a chess game, you would update the board accordingly
+            this.board = move; // Simplified for demonstration
+            this.checkWinner();
+        }
     }
 }
