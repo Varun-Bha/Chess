@@ -5,6 +5,7 @@ const chess_js_1 = require("chess.js");
 const messages_1 = require("./messages");
 class Game {
     constructor(player1, player2) {
+        this.moveCount = 0;
         this.player1 = player1;
         this.player2 = player2;
         this.board = new chess_js_1.Chess();
@@ -23,6 +24,8 @@ class Game {
         }));
     }
     makeMove(socket, move) {
+        console.log(this.board.moves().length);
+        console.log(this.board.board());
         if (this.board.moves.length % 2 === 0 && this.player1 !== socket) {
             return;
         }
@@ -61,6 +64,7 @@ class Game {
                 payload: move
             }));
         }
+        this.moveCount++;
     }
 }
 exports.Game = Game;
