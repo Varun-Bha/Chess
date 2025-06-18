@@ -14,31 +14,44 @@ export const Game = () => {
   const [chess, setChess] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
 
+  // ...existing code...
   useEffect(() => { 
     if (!socket) {
         return;
     }
-    socket.onmessage = (event) => {
-        const message = JSON.parse(event.data);
+    socket.onmessage = async (event) => {
+        try {
+            let message;
+            if (event.data instanceof Blob) {
+                const text = await event.data.text();
+                message = JSON.parse(text);
+            } else {
+                message = JSON.parse(event.data);
+            }
+            console.log("Received message:", message);
 
-        switch (message.type) {
-            case INIT_GAME:
-                setBoard(chess.board());
-
-                break;
-            case MOVE:
-                const move = message.payload;
-                chess.move(move)
-                setBoard(chess.board())
-                 
-                console.log("Move made");
-                break;
-            case GAME_OVER:
-                console.log("Game over"); 
-                break;
+            switch (message.type) {
+                case INIT_GAME:
+                    const newGame = new Chess();
+                    setChess(newGame);
+                    setBoard(newGame.board());
+                    break;
+                case MOVE:
+                    const move = message.payload.move;
+                    chess.move(move);
+                    setBoard(chess.board());
+                    console.log("Move made:", move);
+                    break;
+                case GAME_OVER:
+                    console.log("Game over");
+                    break;
+            }
+        } catch (error) {
+            console.error("Error processing message:", error);
+        }
     }
-    }
-  }, [socket])
+  }, [socket, chess]);
+// ...existing code...
   
   if (!socket) return <div>Connecting... </div>
 
@@ -51,7 +64,7 @@ export const Game = () => {
           </div>
           <div className="col-span-2 bg-slate-900 w-full">
             <Button onClick={() => {
-                  socket.send(JSON.stringify({ type: INIT_GAME }));
+                  socket.send  (JSON.stringify({ type: INIT_GAME })) 
                 
             }}>Play</Button>
             

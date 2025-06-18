@@ -1,27 +1,41 @@
 import { useEffect, useState } from "react";
 
 const WS_URL = "ws://localhost:8080";
+const RECONNECT_DELAY = 3000; // 3 seconds
 
 export const useSocket = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket(WS_URL);
+    let ws: WebSocket;
+    let reconnectTimeout: NodeJS.Timeout;
 
-    ws.onopen = () => {
-      setSocket(ws);
-    };
+    const connectWebSocket = () => {
+      ws = new WebSocket(WS_URL);
 
-    ws.onclose = () => {
-       setSocket(null);
-    };
+      ws.onopen = () => {
+        setSocket(ws);
+        console.log('WebSocket connected');
+      }
+
+      ws.onclose = () => {
+        setSocket(null);
+        console.log('WebSocket disconnected, attempting to reconnect...');
+        reconnectTimeout = setTimeout(connectWebSocket, RECONNECT_DELAY);
+      }
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      }
+    }
+
+    connectWebSocket();
 
     return () => {
-
-      ws.close();
-    };
+      ws?.close();
+      clearTimeout(reconnectTimeout);
+    }
   }, []);
 
   return socket;
 };
- 

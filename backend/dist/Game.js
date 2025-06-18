@@ -26,10 +26,10 @@ class Game {
     makeMove(socket, move) {
         console.log(this.board.moves().length);
         console.log(this.board.board());
-        if (this.board.moves.length % 2 === 0 && this.player1 !== socket) {
+        if (this.moveCount % 2 === 0 && this.player1 !== socket) {
             return;
         }
-        if (this.board.moves.length % 2 === 1 && this.player2 !== socket) {
+        if (this.moveCount % 2 === 1 && this.player2 !== socket) {
             return;
         }
         console.log("did not early return ");
@@ -40,26 +40,33 @@ class Game {
             console.log(e);
             return;
         }
+        console.log("move succeeded");
         if (this.board.isGameOver()) {
-            this.player1.send(JSON.stringify({
+            this.player1.emit(JSON.stringify({
                 type: messages_1.GAME_OVER,
                 payload: {
-                    winner: this.board.turn() === 'w' ? 'black' : 'white',
+                    winner: this.board.turn() === "w" ? "black" : "white"
+                }
+            }));
+            this.player2.emit(JSON.stringify({
+                type: messages_1.GAME_OVER,
+                payload: {
+                    winner: this.board.turn() === "w" ? "black" : "white"
                 }
             }));
             return;
         }
-        console.log(this.board.moves.length % 2 === 0);
-        if (this.board.moves.length % 2 === 0) {
+        console.log(this.board.moves().length % 2 === 0);
+        if (this.board.moves().length % 2 === 0) {
             console.log("sent1");
-            this.player2.send(JSON.stringify({
+            this.player2.emit(JSON.stringify({
                 type: messages_1.MOVE,
                 payload: move
             }));
         }
         else {
-            console.log("sent1");
-            this.player1.send(JSON.stringify({
+            console.log("sent2");
+            this.player1.emit(JSON.stringify({
                 type: messages_1.MOVE,
                 payload: move
             }));
