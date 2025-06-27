@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const WS_URL = "ws://localhost:8080";
+const WS_URL = "wss://chess-awtg.onrender.com";
 const RECONNECT_DELAY = 3000; // 3 seconds
 
 export const useSocket = () => {
@@ -8,7 +8,7 @@ export const useSocket = () => {
 
   useEffect(() => {
     let ws: WebSocket;
-    let reconnectTimeout: NodeJS.Timeout;
+    let reconnectTimeout: number;
 
     const connectWebSocket = () => {
       ws = new WebSocket(WS_URL);
